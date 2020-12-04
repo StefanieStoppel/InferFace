@@ -20,28 +20,17 @@ import sys
 import logging
 
 from inferface import __version__
+from facenet_pytorch import MTCNN, InceptionResnetV1
+from PIL import Image
 
 __author__ = "Stefanie Stoppel"
 __copyright__ = "Stefanie Stoppel"
 __license__ = "mit"
 
+from inferface.network import Age9Head, Gender2Head, Race7Head
+from inferface.save_face_embeddings import create_face_embeddings, write_face_embeddings_to_csv
+
 _logger = logging.getLogger(__name__)
-
-
-def fib(n):
-    """Fibonacci example function
-
-    Args:
-      n (int): integer
-
-    Returns:
-      int: n-th Fibonacci number
-    """
-    assert n > 0
-    a, b = 1, 1
-    for i in range(n-1):
-        a, b = b, a+b
-    return a
 
 
 def parse_args(args):
@@ -59,11 +48,6 @@ def parse_args(args):
         "--version",
         action="version",
         version="InferFace {ver}".format(ver=__version__))
-    parser.add_argument(
-        dest="n",
-        help="n-th Fibonacci number",
-        type=int,
-        metavar="INT")
     parser.add_argument(
         "-v",
         "--verbose",
@@ -101,7 +85,21 @@ def main(args):
     args = parse_args(args)
     setup_logging(args.loglevel)
     _logger.debug("Starting crazy calculations...")
-    print("The {}-th Fibonacci number is {}".format(args.n, fib(args.n)))
+    embeddings = create_face_embeddings('/home/steffi/dev/independent_study/fairface_margin_025/train')
+    write_face_embeddings_to_csv(embeddings,
+                                 '/home/steffi/dev/independent_study/fairface_margin_025/embeddings/train.csv')
+
+    age_model = Age9Head().eval()
+    gender_model = Gender2Head().eval()
+    race_model = Race7Head().eval()
+
+    # age = age_model(img_embedding_512.unsqueeze(0))
+    # gender = gender_model(img_embedding_512.unsqueeze(0))
+    # race = race_model(img_embedding_512.unsqueeze(0))
+    # print(f"age: {age}")
+    # print(f"gender: {gender}")
+    # print(f"race: {race}")
+
     _logger.info("Script ends here")
 
 
