@@ -22,26 +22,26 @@ class AgeGenderRaceClassifier(LightningModule):
         self.lr = lr
         self.fc_age = nn.Sequential(nn.Linear(input_size, 256),
                                     nn.ReLU(),
-                                    nn.Dropout(0.2),
+                                    nn.Dropout(0.4),
                                     nn.Linear(256, 64),
                                     nn.ReLU(),
-                                    nn.Dropout(0.2),
+                                    nn.Dropout(0.4),
                                     nn.Linear(64, output_size_age),
                                     nn.LogSoftmax(dim=1))
         self.fc_gender = nn.Sequential(nn.Linear(input_size, 256),
                                        nn.ReLU(),
-                                       nn.Dropout(0.2),
+                                       nn.Dropout(0.4),
                                        nn.Linear(256, 64),
                                        nn.ReLU(),
-                                       nn.Dropout(0.2),
+                                       nn.Dropout(0.4),
                                        nn.Linear(64, output_size_gender),
                                        nn.LogSoftmax(dim=1))
         self.fc_race = nn.Sequential(nn.Linear(input_size, 256),
                                      nn.ReLU(),
-                                     nn.Dropout(0.2),
+                                     nn.Dropout(0.4),
                                      nn.Linear(256, 64),
                                      nn.ReLU(),
-                                     nn.Dropout(0.2),
+                                     nn.Dropout(0.4),
                                      nn.Linear(64, output_size_race),
                                      nn.LogSoftmax(dim=1))
         self.criterion_binary = nn.BCELoss()
@@ -56,11 +56,6 @@ class AgeGenderRaceClassifier(LightningModule):
     def _loop(self, batch, batch_idx):
         image_path, embedding, age, gender, race = batch[KEY_FILE], batch[KEY_EMBEDDING], batch[KEY_AGE], \
                                                    batch[KEY_GENDER], batch[KEY_RACE]
-        embedding = embedding.to(self.device).float()
-        age = age.to(self.device).long()
-        gender = one_hot(gender.to(self.device),
-                         GENDER_2_OUT_SIZE).float()
-        race = race.to(self.device)
         age_hat, gender_hat, race_hat = self(embedding)
 
         loss_age = self.criterion_multioutput(age_hat, age)
@@ -70,13 +65,19 @@ class AgeGenderRaceClassifier(LightningModule):
         return loss
 
     def training_step(self, batch, batch_idx):
-        return self._loop(batch, batch_idx)
+        train_loss = self._loop(batch, batch_idx)
+        self.log('train_loss', train_loss)
+        return train_loss
 
     def validation_step(self, batch, batch_idx):
-        return self._loop(batch, batch_idx)
+        val_loss = self._loop(batch, batch_idx)
+        self.log('val_loss', val_loss, on_epoch=True)
+        return val_loss
 
     def test_step(self, batch, batch_idx):
-        return self._loop(batch, batch_idx)
+        test_loss = self._loop(batch, batch_idx)
+        self.log('test_loss', test_loss, on_epoch=True)
+        return test_loss
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)

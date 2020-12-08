@@ -23,8 +23,7 @@ class FairFaceEmbeddingsDataset(Dataset):
     def __init__(self, csv_file):
         """
         Args:
-            csv_file (string): Path to the csv file containing the FairFace embeddings.
-                on a sample.
+            csv_file (string):  Path to the csv file containing the FairFace embeddings.
         """
         self.fair_face_embeddings = pd.read_csv(csv_file, quoting=csv.QUOTE_ALL, delimiter=',')
         # convert embedding array saved as string to float array
