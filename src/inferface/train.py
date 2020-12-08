@@ -8,8 +8,7 @@ def train():
     # init model
     model = AgeGenderRaceClassifier()
 
-    train_loader = FairFaceEmbeddingDataLoaderFactory('/home/steffi/dev/independent_study/InferFace/data/embeddings'
-                                                      '/embeddings.csv').train_loader(batch_size=128)
+    train_loader = FairFaceEmbeddingDataLoaderFactory().train_loader(batch_size=128)
 
     # most basic trainer, uses good defaults (auto-tensorboard, checkpoints, logs, and more)
     trainer = pl.Trainer(gpus=1)
@@ -17,5 +16,4 @@ def train():
 
 
 if __name__ == "__main__":
-    print('hi')
     train()

@@ -1,7 +1,8 @@
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
-from torch.nn.functional import cross_entropy
+from torch.nn.functional import one_hot
+from inferface.dataset.fairface_embeddings_dataset import KEY_FILE, KEY_EMBEDDING, KEY_AGE, KEY_GENDER, KEY_RACE
 
 VGG_FACE2_EMBEDDING_SIZE = 512
 AGE_9_OUT_SIZE = 9
@@ -47,16 +48,18 @@ class AgeGenderRaceClassifier(LightningModule):
         return age, gender, race
 
     def _loop(self, batch, batch_idx):
-        print(batch)
-        image_path, embedding, age, gender, race = batch['image_path'], batch['embedding'], batch['age'], batch['gender'], batch['race']
-        print(image_path)
-        embedding = embedding.squeeze().type(torch.FloatTensor)
-        print(embedding)
+        image_path, embedding, age, gender, race = batch[KEY_FILE], batch[KEY_EMBEDDING], batch[KEY_AGE], \
+                                                   batch[KEY_GENDER], batch[KEY_RACE]
+        embedding = embedding.to(self.device).float()
+        age = age.to(self.device).long()
+        gender = one_hot(gender.to(self.device),
+                         GENDER_2_OUT_SIZE).float()
+        race = race.to(self.device)
         age_hat, gender_hat, race_hat = self(embedding)
 
-        loss_age = self.criterion_multioutput(age_hat, age.squeeze().type(torch.FloatTensor))
-        loss_gender = self.criterion_binary(gender_hat, gender.squeeze().type(torch.FloatTensor))
-        loss_race = self.criterion_multioutput(race_hat, race.squeeze().type(torch.FloatTensor))
+        loss_age = self.criterion_multioutput(age_hat, age)
+        loss_gender = self.criterion_binary(gender_hat, gender)
+        loss_race = self.criterion_multioutput(race_hat, race)
         loss = loss_age + loss_gender + loss_race
         return loss
 
