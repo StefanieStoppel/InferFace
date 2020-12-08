@@ -11,9 +11,15 @@ RACE_7_OUT_SIZE = 7
 
 
 class AgeGenderRaceClassifier(LightningModule):
-    def __init__(self, input_size=VGG_FACE2_EMBEDDING_SIZE, output_size_age=AGE_9_OUT_SIZE,
-                 output_size_gender=GENDER_2_OUT_SIZE, output_size_race=RACE_7_OUT_SIZE):
+    def __init__(self,
+                 input_size: int = VGG_FACE2_EMBEDDING_SIZE,
+                 output_size_age: int = AGE_9_OUT_SIZE,
+                 output_size_gender: int = GENDER_2_OUT_SIZE,
+                 output_size_race: int = RACE_7_OUT_SIZE,
+                 lr: float = 1e-3
+                 ):
         super().__init__()
+        self.lr = lr
         self.fc_age = nn.Sequential(nn.Linear(input_size, 256),
                                     nn.ReLU(),
                                     nn.Dropout(0.2),
@@ -73,5 +79,5 @@ class AgeGenderRaceClassifier(LightningModule):
         return self._loop(batch, batch_idx)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
         return optimizer
