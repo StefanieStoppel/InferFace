@@ -2,12 +2,16 @@ name: InferFace
 channels:
   - conda-forge
   - defaults
+  - pytorch
 dependencies:
   - python>=3.6,<3.9
   - pip
+  - cudatoolkit=11.0
   - jupyter
   - numpy
   - pandas
+  - pytorch
+  - torchvision
   - pytorch-lightning
   - tqdm
   - pip:
