@@ -26,7 +26,7 @@ __copyright__ = "Stefanie Stoppel"
 __license__ = "mit"
 
 from inferface.embeddings import create_face_embeddings
-from inferface.train import train
+from inferface.run import run_stage
 from inferface.utils import write_to_csv
 
 _logger = logging.getLogger(__name__)
@@ -43,6 +43,20 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser(
         description="Just a Fibonacci demonstration")
+    parser.add_argument(
+        "-s",
+        "--stage",
+        dest="stage",
+        type=str,
+        choices=['train', 'test', 'preprocess'],
+        default='train'
+        )
+    parser.add_argument(
+        "-c",
+        "--checkpoint",
+        dest="checkpoint",
+        default=''
+    )
     parser.add_argument(
         "--version",
         action="version",
@@ -83,14 +97,26 @@ def main(args):
     """
     args = parse_args(args)
     setup_logging(args.loglevel)
-    _logger.debug("Starting crazy calculations...")
-    embeddings, no_faces_found = create_face_embeddings('/home/steffi/dev/independent_study/fairface_margin_025/train')
-    write_to_csv(embeddings,
-                 '/home/steffi/dev/independent_study/fairface_margin_025/embeddings/train.csv')
-    write_to_csv(no_faces_found,
-                 '/home/steffi/dev/independent_study/fairface_margin_025/embeddings/train_no_faces.csv')
 
-    _logger.info("Script ends here")
+    if args.stage == 'test' and (args.checkpoint is None or args.checkpoint == ''):
+        _logger.error("Argument --stage requires argument --checkpoint to be set to a valid checkpoint path.")
+        sys.exit(1)
+
+    if args.stage == 'preprocess':
+        embeddings, no_faces_found = create_face_embeddings('/home/steffi/dev/independent_study/fairface_margin_025/val')
+        write_to_csv(embeddings,
+                     '/home/steffi/dev/independent_study/fairface_margin_025/embeddings/val.csv')
+        write_to_csv(no_faces_found,
+                     '/home/steffi/dev/independent_study/fairface_margin_025/embeddings/val_no_faces.csv')
+
+    if args.stage == 'train':
+        _logger.info("Starting training stage...")
+        run_stage(stage=args.stage)
+    elif args.stage == 'test':
+        _logger.info("Starting testing stage...")
+        run_stage(stage=args.stage, checkpoint_path=args.checkpoint)
+
+    _logger.info("Done.")
 
 
 def run():
@@ -100,4 +126,4 @@ def run():
 
 
 if __name__ == "__main__":
-    train()
+    run()
