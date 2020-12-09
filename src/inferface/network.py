@@ -60,11 +60,11 @@ class AgeGenderRaceClassifier(LightningModule):
         age_hat, gender_hat, race_hat = self(embedding)
 
         loss_age = self.criterion_multioutput(age_hat, age)
-        self.log(LossNames.TEST_LOSS_AGE.value, loss_age)
+        self.log(LossNames.TRAIN_LOSS_AGE.value, loss_age)
         loss_gender = self.criterion_binary(gender_hat, gender)
-        self.log(LossNames.TEST_LOSS_GENDER.value, loss_gender)
+        self.log(LossNames.TRAIN_LOSS_GENDER.value, loss_gender)
         loss_race = self.criterion_multioutput(race_hat, race)
-        self.log(LossNames.TEST_LOSS_RACE.value, loss_race)
+        self.log(LossNames.TRAIN_LOSS_RACE.value, loss_race)
 
         loss = loss_age + loss_gender + loss_race
         return loss
