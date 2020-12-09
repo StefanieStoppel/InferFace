@@ -51,7 +51,7 @@ class AgeGenderRaceClassifier(LightningModule):
         race = self.fc_race(x)
         return age, gender, race
 
-    def _loop(self, batch, batch_idx):
+    def _loop(self, batch, batch_idx, stage):
         image_path, embedding, age, gender, race = batch[FairFaceColumnKeys.KEY_FILE.value], \
                                                    batch[FairFaceColumnKeys.KEY_EMBEDDING.value], \
                                                    batch[FairFaceColumnKeys.KEY_AGE.value], \
@@ -60,29 +60,26 @@ class AgeGenderRaceClassifier(LightningModule):
         age_hat, gender_hat, race_hat = self(embedding)
 
         loss_age = self.criterion_multioutput(age_hat, age)
-        self.log(LossNames.TRAIN_LOSS_AGE.value, loss_age)
+        self.log(f"{stage}_{LossNames.LOSS_AGE.value}", loss_age)
         loss_gender = self.criterion_binary(gender_hat, gender)
-        self.log(LossNames.TRAIN_LOSS_GENDER.value, loss_gender)
+        self.log(f"{stage}_{LossNames.LOSS_GENDER.value}", loss_gender)
         loss_race = self.criterion_multioutput(race_hat, race)
-        self.log(LossNames.TRAIN_LOSS_RACE.value, loss_race)
-
+        self.log(f"{stage}_{LossNames.LOSS_RACE.value}", loss_race)
         loss = loss_age + loss_gender + loss_race
+        self.log(f"{stage}_{LossNames.LOSS_TOTAL.value}", loss)
         return loss
 
     def training_step(self, batch, batch_idx):
-        train_loss = self._loop(batch, batch_idx)
-        self.log(LossNames.TRAIN_LOSS_TOTAL.value, train_loss)
-        return train_loss
+        stage = 'train'
+        return self._loop(batch, batch_idx, stage)
 
     def validation_step(self, batch, batch_idx):
-        val_loss = self._loop(batch, batch_idx)
-        self.log(LossNames.VAL_LOSS_TOTAL.value, val_loss, on_epoch=True)
-        return val_loss
+        stage = 'val'
+        return self._loop(batch, batch_idx, stage)
 
     def test_step(self, batch, batch_idx):
-        test_loss = self._loop(batch, batch_idx)
-        self.log(LossNames.TEST_LOSS_TOTAL.value, test_loss, on_epoch=True)
-        return test_loss
+        stage = 'test'
+        return self._loop(batch, batch_idx, stage)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)

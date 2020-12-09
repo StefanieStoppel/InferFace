@@ -10,21 +10,11 @@ class NetworkLayerSizes(Enum):
 
 
 class LossNames(Enum):
-    """ Loss name definitions for logging """
-    TRAIN_LOSS_TOTAL: str = "train_loss_total"
-    TRAIN_LOSS_AGE: str = "train_loss_age"
-    TRAIN_LOSS_GENDER: str = "train_loss_gender"
-    TRAIN_LOSS_RACE: str = "train_loss_race"
-
-    VAL_LOSS_TOTAL: str = "val_loss_total"
-    VAL_LOSS_AGE: str = "val_loss_age"
-    VAL_LOSS_GENDER: str = "val_loss_gender"
-    VAL_LOSS_RACE: str = "val_loss_race"
-
-    TEST_LOSS_TOTAL: str = "test_loss_total"
-    TEST_LOSS_AGE: str = "test_loss_age"
-    TEST_LOSS_GENDER: str = "test_loss_gender"
-    TEST_LOSS_RACE: str = "test_loss_race"
+    """ Loss name postfix definitions for logging """
+    LOSS_TOTAL: str = "loss_total"
+    LOSS_AGE: str = "loss_age"
+    LOSS_GENDER: str = "loss_gender"
+    LOSS_RACE: str = "loss_race"
 
 
 class FairFaceColumnKeys(Enum):
