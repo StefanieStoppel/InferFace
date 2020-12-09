@@ -5,9 +5,9 @@ import pytorch_lightning as pl
 from torch.nn.functional import one_hot
 from typing import Any
 from torch.utils.data import DataLoader, random_split
-from inferface.dataset.fairface_embeddings_dataset import FairFaceEmbeddingsDataset, KEY_FILE, KEY_EMBEDDING, KEY_AGE, \
-    KEY_GENDER, KEY_RACE
-from inferface.network import GENDER_2_OUT_SIZE
+
+from inferface.config import FairFaceColumnKeys, NetworkLayerSizes
+from inferface.dataset.fairface_embeddings_dataset import FairFaceEmbeddingsDataset
 
 _logger = logging.getLogger(__name__)
 
@@ -38,10 +38,11 @@ class FairFaceDataModule(pl.LightningDataModule):
         self.fairface_train, self.fairface_val = random_split(fairface_full, [ff_train_size, ff_val_size])
 
     def transfer_batch_to_device(self, batch: Any, device: torch.device) -> Any:
-        batch[KEY_EMBEDDING] = batch[KEY_EMBEDDING].float().to(device)
-        batch[KEY_AGE] = batch[KEY_AGE].long().to(device)
-        batch[KEY_GENDER] = one_hot(batch[KEY_GENDER], GENDER_2_OUT_SIZE).float().to(device)
-        batch[KEY_RACE] = batch[KEY_RACE].to(device)
+        batch[FairFaceColumnKeys.KEY_EMBEDDING] = batch[FairFaceColumnKeys.KEY_EMBEDDING].float().to(device)
+        batch[FairFaceColumnKeys.KEY_AGE] = batch[FairFaceColumnKeys.KEY_AGE].long().to(device)
+        batch[FairFaceColumnKeys.KEY_GENDER] = one_hot(batch[FairFaceColumnKeys.KEY_GENDER],
+                                                       NetworkLayerSizes.GENDER_2_OUTPUT).float().to(device)
+        batch[FairFaceColumnKeys.KEY_RACE] = batch[FairFaceColumnKeys.KEY_RACE].to(device)
         return batch
 
     def train_dataloader(self):

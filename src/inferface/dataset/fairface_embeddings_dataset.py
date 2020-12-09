@@ -5,16 +5,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-
-KEY_EMBEDDING = 'embedding'
-KEY_FILE = 'file'
-KEY_AGE = 'age'
-KEY_GENDER = 'gender'
-KEY_RACE = 'race'
-
-AGE_9_LABELS = ['0-2', '3-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', 'more than 70']
-GENDER_2_LABELS = ['Male', 'Female']
-RACE_7_LABELS = ['White', 'Black', 'Latino_Hispanic', 'East Asian', 'Southeast Asian', 'Indian', 'Middle Eastern']
+from inferface.config import FairFaceColumnKeys, FairFaceLabels
 
 
 class FairFaceEmbeddingsDataset(Dataset):
@@ -40,15 +31,15 @@ class FairFaceEmbeddingsDataset(Dataset):
 
     @staticmethod
     def _get_age_class_idx(age_class_name: str):
-        return AGE_9_LABELS.index(age_class_name)
+        return FairFaceLabels.AGE_9_LABELS.index(age_class_name)
 
     @staticmethod
     def _get_gender_class_idx(gender_class_name: str):
-        return GENDER_2_LABELS.index(gender_class_name)
+        return FairFaceLabels.GENDER_2_LABELS.index(gender_class_name)
 
     @staticmethod
     def _get_race_class_idx(race_class_name: str):
-        return RACE_7_LABELS.index(race_class_name)
+        return FairFaceLabels.RACE_7_LABELS.index(race_class_name)
 
     def __len__(self):
         return len(self.fair_face_embeddings)
@@ -58,9 +49,9 @@ class FairFaceEmbeddingsDataset(Dataset):
             idx = idx.tolist()
 
         row = self.fair_face_embeddings.iloc[idx, :]
-        sample = {KEY_EMBEDDING: row[KEY_EMBEDDING],
-                  KEY_FILE: row[KEY_FILE],
-                  KEY_AGE: row[KEY_AGE],
-                  KEY_GENDER: row[KEY_GENDER],
-                  KEY_RACE: row[KEY_RACE]}
+        sample = {FairFaceColumnKeys.KEY_EMBEDDING: row[FairFaceColumnKeys.KEY_EMBEDDING],
+                  FairFaceColumnKeys.KEY_FILE: row[FairFaceColumnKeys.KEY_FILE],
+                  FairFaceColumnKeys.KEY_AGE: row[FairFaceColumnKeys.KEY_AGE],
+                  FairFaceColumnKeys.KEY_GENDER: row[FairFaceColumnKeys.KEY_GENDER],
+                  FairFaceColumnKeys.KEY_RACE: row[FairFaceColumnKeys.KEY_RACE]}
         return sample
