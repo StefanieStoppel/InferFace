@@ -16,32 +16,35 @@ class AgeGenderRaceClassifier(LightningModule):
                  output_size_age: int = AGE_9_OUT_SIZE,
                  output_size_gender: int = GENDER_2_OUT_SIZE,
                  output_size_race: int = RACE_7_OUT_SIZE,
-                 lr: float = 1e-3
+                 lr: float = 1e-3,
+                 dropout: float = 0.4
                  ):
         super().__init__()
         self.lr = lr
+        self.dropout = dropout
+
         self.fc_age = nn.Sequential(nn.Linear(input_size, 256),
                                     nn.ReLU(),
-                                    nn.Dropout(0.4),
+                                    nn.Dropout(self.dropout),
                                     nn.Linear(256, 64),
                                     nn.ReLU(),
-                                    nn.Dropout(0.4),
+                                    nn.Dropout(self.dropout),
                                     nn.Linear(64, output_size_age),
                                     nn.LogSoftmax(dim=1))
         self.fc_gender = nn.Sequential(nn.Linear(input_size, 256),
                                        nn.ReLU(),
-                                       nn.Dropout(0.4),
+                                       nn.Dropout(self.dropout),
                                        nn.Linear(256, 64),
                                        nn.ReLU(),
-                                       nn.Dropout(0.4),
+                                       nn.Dropout(self.dropout),
                                        nn.Linear(64, output_size_gender),
-                                       nn.LogSoftmax(dim=1))
+                                       nn.Sigmoid())
         self.fc_race = nn.Sequential(nn.Linear(input_size, 256),
                                      nn.ReLU(),
-                                     nn.Dropout(0.4),
+                                     nn.Dropout(self.dropout),
                                      nn.Linear(256, 64),
                                      nn.ReLU(),
-                                     nn.Dropout(0.4),
+                                     nn.Dropout(self.dropout),
                                      nn.Linear(64, output_size_race),
                                      nn.LogSoftmax(dim=1))
         self.criterion_binary = nn.BCELoss()
@@ -49,7 +52,7 @@ class AgeGenderRaceClassifier(LightningModule):
 
     def forward(self, x):
         age = self.fc_age(x)
-        gender = torch.sigmoid(self.fc_gender(x))
+        gender = self.fc_gender(x)
         race = self.fc_race(x)
         return age, gender, race
 
